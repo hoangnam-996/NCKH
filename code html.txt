@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MBTI & CLB — 3 trang (Student info required)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{
+      --accent:#e91e63;
+      --muted:#6b6b6b;
+      --card:#ffffff;
+      --bg:#fce4ec;
+      --text:#222;
+      --surface-border: rgba(0,0,0,0.06);
+      --shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+    html.dark{
+      --accent:#ff80ab;
+      --muted:#b8c0c8;
+      --card:#0b1220;
+      --bg: linear-gradient(90deg,#0f1724,#122030);
+      --text:#e6eef6;
+      --surface-border: rgba(255,255,255,0.06);
+      --shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    *{box-sizing:border-box}
+    body{ font-family: 'Segoe UI',system-ui,Roboto,Arial; margin:0; padding:0; min-height:100vh; background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased;}
+    .container{ max-width:1024px; margin:28px auto; background:var(--card); padding:20px; border-radius:14px; box-shadow:var(--shadow); border:1px solid var(--surface-border); }
+
+    header{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+    h1{ color:var(--accent); margin:0; font-size:1.1rem; display:flex; align-items:center; gap:10px; }
+    .controls { display:flex; gap:8px; align-items:center; }
+
+    .btn{ padding:8px 12px; border-radius:10px; border:1px solid var(--surface-border); background:transparent; cursor:pointer; color:var(--text); }
+    .btn.primary{ background:var(--accent); color:#fff; border:none; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+
+    .logo-area{ height:86px; border:2px dashed var(--surface-border); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; color:var(--muted); cursor:pointer; overflow:hidden; background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent); }
+    .logo-area img{ max-height:86px; object-fit:contain; }
+
+    .start-panel{ display:flex; gap:16px; align-items:stretch; margin-bottom:16px; }
+    .start-left{ flex:1 1 520px; border-radius:12px; padding:16px; background:linear-gradient(180deg,rgba(233,30,99,0.04),rgba(233,30,99,0.02)); min-height:140px; display:flex; flex-direction:column; justify-content:space-between; }
+    .start-right{ width:220px; border-radius:12px; border:1px dashed var(--surface-border); background:var(--card); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; gap:8px; cursor:pointer; overflow:hidden; }
+    .start-right img{ width:100%; height:140px; object-fit:cover; border-radius:8px; display:block; }
+
+    .about{ margin-bottom:16px; border-radius:12px; padding:14px; background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent); border:1px solid var(--surface-border); }
+    .about textarea{ width:100%; min-height:88px; border-radius:8px; padding:10px; border:1px solid var(--surface-border); font-size:0.95rem; background:transparent; color:var(--text); }
+
+    .club-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-bottom:12px; }
+    .club-box{ border-radius:10px; background:var(--card); border:1px solid var(--surface-border); padding:8px; display:flex; flex-direction:column; gap:8px; align-items:stretch; min-height:220px; }
+    .club-thumb{ height:110px; border-radius:8px; background:linear-gradient(180deg,#f7f7f7,#fff); border:1px dashed var(--surface-border); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .club-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .club-box .label{ font-weight:700; color:var(--accent); font-size:0.95rem; }
+    .club-list{ margin-top:6px; padding-left:14px; font-size:0.95rem; color:var(--text); overflow:auto; list-style:disc; }
+
+    .page{ display:none; }
+    .page.active{ display:block; }
+
+    .quiz-container{ padding:8px; background:var(--card); border-radius:10px; border:1px solid var(--surface-border); }
+    .quiz-page{ display:none; }
+    .quiz-page.active{ display:block; }
+    .question{ margin:12px 0; padding:8px; border-radius:8px; background:linear-gradient(180deg,transparent, rgba(0,0,0,0.01)); }
+    .answers label{ display:block; margin:6px 0; padding:10px; border-radius:8px; cursor:pointer; transition: transform 140ms ease, box-shadow 140ms ease, background 120ms ease; border:1px solid transparent; background:transparent; color:var(--text); }
+    .answers label:hover{ transform: translateY(-3px); box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    .answers label.selected{ background: linear-gradient(90deg, rgba(233,30,99,0.12), rgba(233,30,99,0.06)); border:1px solid rgba(233,30,99,0.18); box-shadow:0 8px 20px rgba(233,30,99,0.08); transform: translateY(-6px); }
+    .answers input[type="radio"]{ margin-right:8px; accent-color:var(--accent); }
+
+    .progress-wrap{ display:flex; align-items:center; gap:12px; margin:8px 0 16px; }
+    .progress-bar{ flex:1; height:12px; background:rgba(0,0,0,0.06); border-radius:999px; overflow:hidden; border:1px solid var(--surface-border); }
+    .progress-fill{ height:100%; background:linear-gradient(90deg,var(--accent),#ff8ab3); width:0%; transition: width 300ms ease; }
+
+    .controls-bottom{ display:flex; justify-content:space-between; align-items:center; margin-top:18px; gap:12px; flex-wrap:wrap; }
+
+    .result-card{ margin-top:18px; padding:18px; border-radius:10px; background: rgba(0,0,0,0.02); }
+    .result-grid{ display:flex; gap:16px; flex-wrap:wrap; margin-top:12px; }
+    .result-box{ flex:1 1 220px; padding:12px; border-radius:8px; background:var(--card); border:1px solid var(--surface-border); }
+
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:10000; }
+    .modal{ background:var(--card); color:var(--text); width:min(560px,94%); border-radius:10px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,0.25); border:1px solid var(--surface-border); }
+    .modal h3{ margin:0 0 8px 0; color:var(--accent); }
+    .modal .row{ margin:8px 0; display:flex; gap:8px; flex-direction:column; }
+    .modal input[type="text"], .modal textarea, .modal select{ width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--surface-border); font-size:0.95rem; background:transparent; color:var(--text); }
+    .modal textarea{ min-height:60px; resize:vertical; }
+    .modal .actions{ margin-top:12px; display:flex; gap:8px; justify-content:flex-end; }
+
+    @media (max-width:980px){ .start-panel{ flex-direction:column; } .start-right{ width:100%; height:140px; } .club-grid{ grid-template-columns: repeat(2, 1fr); } .result-grid{ flex-direction:column; } }
+    @media (max-width:520px){ .club-grid{ grid-template-columns: 1fr; } .controls-bottom{ flex-direction:column; gap:8px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1><i class="fas fa-user-circle"></i> Trắc nghiệm MBTI & Danh mục CLB</h1>
+      <div class="controls">
+        <button id="darkToggle" class="btn" title="Chế độ tối"><i class="fas fa-moon"></i></button>
+      </div>
+    </header>
+
+    <!-- PAGE 1: Giới thiệu & CLB -->
+    <section id="page-intro" class="page active">
+      <div class="logo-area" id="logoArea" title="Click để chèn logo">
+        <div id="logoPlaceholder">Khu vực chèn logo (click để chọn ảnh)</div>
+        <input type="file" id="logoInput" accept="image/*" style="display:none" />
+      </div>
+
+      <div class="start-panel">
+        <div class="start-left">
+          <div>
+            <div style="font-weight:700; font-size:1.05rem; color:var(--accent);">Bắt đầu làm MBTI</div>
+            <div class="muted" style="margin-top:6px;">Phải điền thông tin sinh viên trước khi làm bài. Chọn độ khó rồi nhấn Bắt đầu.</div>
+
+            <div class="options-row">
+              <div>
+                <div style="font-weight:700; margin-bottom:6px;">Độ khó</div>
+                <label><input type="radio" name="difficulty" value="basic" checked /> Cơ bản</label>
+                <label style="margin-left:8px;"><input type="radio" name="difficulty" value="advanced" /> Nâng cao</label>
+              </div>
+
+              <div style="margin-left:auto;">
+                <div style="font-weight:700; margin-bottom:6px;">Xem</div>
+                <button id="previewBtn" class="btn">Xem CLB</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <button id="startBtn" class="btn primary">Bắt đầu</button>
+            <button id="goToClubs" class="btn" style="margin-left:8px">CLB</button>
+          </div>
+        </div>
+
+        <div class="start-right" id="startImageBox" title="Click để chèn ảnh mô tả">
+          <div class="placeholder">Ảnh mô tả (click để chèn)</div>
+          <input type="file" id="startImageInput" accept="image/*" style="display:none" />
+        </div>
+      </div>
+
+      <div class="about">
+        <label style="font-weight:700; display:block; margin-bottom:8px;">Giới thiệu về website</label>
+        <textarea id="aboutText">Chèn thông tin giới thiệu về web ở đây. Ví dụ: Đây là nền tảng trắc nghiệm MBTI giúp bạn xác định xu hướng tính cách và gợi ý CLB phù hợp.</textarea>
+      </div>
+
+      <div class="club-grid">
+        <div class="club-box" data-index="1">
+          <div class="club-thumb" id="clubThumb1"><div class="placeholder">CLB 1 - Ảnh</div></div>
+          <div class="label">I. Học thuật & Phát triển Kỹ năng</div>
+          <input type="file" id="clubFile1" accept="image/*" style="display:none" />
+          <button class="btn" data-club="1">Chèn ảnh</button>
+          <ul class="club-list">
+            <li>Câu lạc bộ Tiếng Anh</li>
+            <li>Câu lạc bộ Tiếng Nhật</li>
+            <li>Câu lạc bộ Thương mại điện tử</li>
+            <li>Câu lạc bộ Logistic</li>
+            <li>Câu lạc bộ Lập trình</li>
+            <li>Câu lạc bộ Sáng tạo khởi nghiệp</li>
+            <li>Câu lạc bộ Khoa học và Công nghệ</li>
+          </ul>
+        </div>
+
+        <div class="club-box" data-index="2">
+          <div class="club-thumb" id="clubThumb2"><div class="placeholder">CLB 2 - Ảnh</div></div>
+          <div class="label">II. Tình nguyện & Cộng đồng</div>
+          <input type="file" id="clubFile2" accept="image/*" style="display:none" />
+          <button class="btn" data-club="2">Chèn ảnh</button>
+          <ul class="club-list">
+            <li>Đội Thanh niên xung kích</li>
+            <li>Đội SVTN khoa Kinh tế vận tải</li>
+            <li>Đội SVTN khoa Cơ khí</li>
+            <li>Đội SVTN khoa Công trình</li>
+            <li>Đội SVTN khoa Công nghệ thông tin</li>
+            <li>Đội TNV Hiến máu nhân đạo</li>
+            <li>Đội SVTN Đồng hương Nghệ Tĩnh</li>
+          </ul>
+        </div>
+
+        <div class="club-box" data-index="3">
+          <div class="club-thumb" id="clubThumb3"><div class="placeholder">CLB 3 - Ảnh</div></div>
+          <div class="label">III. Nghệ thuật & Sự kiện</div>
+          <input type="file" id="clubFile3" accept="image/*" style="display:none" />
+          <button class="btn" data-club="3">Chèn ảnh</button>
+          <ul class="club-list">
+            <li>Câu lạc bộ MC và Sự kiện</li>
+            <li>Câu lạc bộ Guitar</li>
+            <li>Đội Lễ Tân</li>
+            <li>Câu lạc bộ Múa</li>
+            <li>Câu lạc bộ Nhảy</li>
+            <li>Câu lạc bộ Truyền thông CHC</li>
+            <li>Câu lạc bộ Tiêu sáo</li>
+          </ul>
+        </div>
+
+        <div class="club-box" data-index="4">
+          <div class="club-thumb" id="clubThumb4"><div class="placeholder">CLB 4 - Ảnh</div></div>
+          <div class="label">IV. Thể dục Thể thao & Giải trí</div>
+          <input type="file" id="clubFile4" accept="image/*" style="display:none" />
+          <button class="btn" data-club="4">Chèn ảnh</button>
+          <ul class="club-list">
+            <li>Câu lạc bộ Thể thao Điện tử</li>
+            <li>Câu lạc bộ Bóng đá</li>
+            <li>Câu lạc bộ Bóng rổ</li>
+            <li>Câu lạc bộ Bóng chuyền</li>
+            <li>Câu lạc bộ Võ Vovinam</li>
+            <li>Câu lạc bộ Karate-do</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 2: Quiz -->
+    <section id="page-quiz" class="page" hidden>
+      <h2 style="color:var(--accent); margin-top:0;">Bài kiểm tra MBTI</h2>
+      <div class="quiz-container" id="quizContainer" aria-live="polite">
+        <div class="progress-wrap">
+          <div style="min-width:90px; font-weight:700;">Tiến độ</div>
+          <div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+          <div id="progressText" style="min-width:120px; text-align:right;">0 / 0 (0%)</div>
+        </div>
+
+        <form id="quizForm" class="quiz-form">
+          <div id="quizPagesContainer"></div>
+
+          <div class="controls-bottom">
+            <div class="pagination">
+              <button type="button" class="btn" id="prevBtn">Trang trước</button>
+              <div id="pageIndicator" style="padding:8px 12px;border-radius:8px;background:transparent;">Trang 1 / 1</div>
+              <button type="button" class="btn" id="nextBtn">Trang sau</button>
+            </div>
+            <div>
+              <button type="button" class="btn primary" id="submitBtn">Nộp bài</button>
+              <button type="button" class="btn" id="cancelQuiz">Hủy</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- PAGE 3: Result -->
+    <section id="page-result" class="page" hidden>
+      <h2 style="color:var(--accent); margin-top:0;">Kết quả MBTI</h2>
+      <div class="result-card" id="resultCard">
+        <div id="studentInfo" style="margin-bottom:12px;"></div>
+        <div id="resultSummary" style="margin-bottom:12px;"></div>
+
+        <div class="result-grid" style="margin-top:12px;">
+          <div class="result-box"><strong>Trục E / I</strong><div id="eiBox">E: 0 ; I: 0</div></div>
+          <div class="result-box"><strong>Trục S / N</strong><div id="snBox">S: 0 ; N: 0</div></div>
+          <div class="result-box"><strong>Trục T / F</strong><div id="tfBox">T: 0 ; F: 0</div></div>
+          <div class="result-box"><strong>Trục J / P</strong><div id="jpBox">J: 0 ; P: 0</div></div>
+        </div>
+
+        <div class="counts" id="detailDesc" style="margin-top:14px;"></div>
+
+        <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" id="printBtn" class="btn primary"><i class="fas fa-print"></i> In kết quả</button>
+          <button type="button" id="backToIntro" class="btn">Về Trang Giới thiệu</button>
+          <button type="button" id="newTest" class="btn">Làm lại</button>
+        </div>
+      </div>
+    </section>
+
+    <footer style="margin-top:18px; text-align:center; color:rgba(0,0,0,0.4);">Phiên bản demo — MBTI + CLB</footer>
+  </div>
+
+  <!-- STUDENT INFO MODAL (required to start) -->
+  <div class="modal-backdrop" id="studentModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document" aria-labelledby="modalTitle">
+      <h3 id="modalTitle">Thông tin sinh viên (bắt buộc)</h3>
+      <div class="row">
+        <label for="studentName">Tên sinh viên</label>
+        <input id="studentName" type="text" placeholder="Nguyễn Văn A">
+      </div>
+      <div class="row">
+        <label for="studentId">Mã sinh viên</label>
+        <input id="studentId" type="text" placeholder="B20DCCN001">
+      </div>
+      <div class="row">
+        <label for="studentClass">Tên lớp</label>
+        <input id="studentClass" type="text" placeholder="CNTT K64">
+      </div>
+      <div class="row">
+        <label for="studentHobby">Sở thích (ngắn)</label>
+        <textarea id="studentHobby" placeholder="Ví dụ: đọc sách, bóng đá"></textarea>
+      </div>
+      <div class="actions">
+        <button type="button" id="modalCancel" class="btn">Hủy</button>
+        <button type="button" id="modalSave" class="btn primary">Lưu và bắt đầu</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // Questions (20) - options no longer include "A. " / "B. "
+      const questions20 = [
+        {q:"Tại một buổi tiệc, bạn sẽ:", a:["Giao tiếp với nhiều người","Chỉ trò chuyện với vài người thân quen"], val:["E","I"]},
+        {q:"Bạn chú ý đến:", a:["Chi tiết cụ thể","Ý tưởng, hình dung"], val:["S","N"]},
+        {q:"Khi ra quyết định:", a:["Lý lẽ, phân tích","Cảm xúc, đồng cảm"], val:["T","F"]},
+        {q:"Bạn thích công việc:", a:["Có kế hoạch rõ ràng","Tùy hứng linh hoạt"], val:["J","P"]},
+        {q:"Khi gặp người mới, bạn:", a:["Hào hứng bắt chuyện","Quan sát rồi mới nói chuyện"], val:["E","I"]},
+        {q:"Khi học điều mới:", a:["Cách áp dụng thực tế","Nguyên lý, ý tưởng"], val:["S","N"]},
+        {q:"Khi góp ý:", a:["Nói thẳng","Nói khéo"], val:["T","F"]},
+        {q:"Làm bài tập lớn:", a:["Lên kế hoạch sớm","Nước đến chân mới nhảy"], val:["J","P"]},
+        {q:"Khi mệt mỏi, bạn muốn:", a:["Ra ngoài gặp bạn bè","Ở nhà nghỉ ngơi một mình"], val:["E","I"]},
+        {q:"Bạn thấy dễ chịu khi:", a:["Theo hướng dẫn rõ ràng","Tự tìm cách mới"], val:["S","N"]},
+        {q:"Bạn coi trọng:", a:["Logic, công bằng","Hòa hợp, cảm xúc"], val:["T","F"]},
+        {q:"Đời sống hàng ngày:", a:["Ngăn nắp, có quy tắc","Tự nhiên, thoải mái"], val:["J","P"]},
+        {q:"Bạn cảm thấy năng lượng hơn khi:", a:["Trong nhóm đông người","Một mình yên tĩnh"], val:["E","I"]},
+        {q:"Khi nhớ lại kỷ niệm:", a:["Nhớ chi tiết","Nhớ cảm xúc, ý nghĩa"], val:["S","N"]},
+        {q:"Khi người khác buồn:", a:["Giúp giải quyết","Lắng nghe, an ủi"], val:["T","F"]},
+        {q:"Khi đi chơi:", a:["Biết trước lịch trình","Diễn ra tự nhiên"], val:["J","P"]},
+        {q:"Trong buổi học nhóm, bạn:", a:["Nói ngay ý tưởng","Nghe trước rồi chia sẻ"], val:["E","I"]},
+        {q:"Khi xem phim:", a:["Hành động, hình ảnh","Ẩn ý, thông điệp"], val:["S","N"]},
+        {q:"Khi bị chỉ trích:", a:["Xem có lý không","Buồn, tổn thương"], val:["T","F"]},
+        {q:"Nhiều việc cần làm:", a:["Ghi danh sách theo thứ tự","Làm việc nào hứng lên trước"], val:["J","P"]}
+      ];
+
+      // Elements
+      const logoArea = document.getElementById('logoArea');
+      const logoInput = document.getElementById('logoInput');
+      const startImageBox = document.getElementById('startImageBox');
+      const startImageInput = document.getElementById('startImageInput');
+      const clubFileInputs = [null, document.getElementById('clubFile1'), document.getElementById('clubFile2'), document.getElementById('clubFile3'), document.getElementById('clubFile4')];
+      const btnStart = document.getElementById('startBtn');
+      const previewBtn = document.getElementById('previewBtn');
+      const goToClubs = document.getElementById('goToClubs');
+
+      const studentModal = document.getElementById('studentModal');
+      const studentNameInput = document.getElementById('studentName');
+      const studentIdInput = document.getElementById('studentId');
+      const studentClassInput = document.getElementById('studentClass');
+      const studentHobbyInput = document.getElementById('studentHobby');
+      const modalSave = document.getElementById('modalSave');
+      const modalCancel = document.getElementById('modalCancel');
+
+      const quizSection = document.getElementById('page-quiz');
+      const quizForm = document.getElementById('quizForm');
+      const quizPagesContainer = document.getElementById('quizPagesContainer');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const pageIndicator = document.getElementById('pageIndicator');
+      const submitBtn = document.getElementById('submitBtn');
+      const cancelQuiz = document.getElementById('cancelQuiz');
+      const progressFill = document.getElementById('progressFill');
+      const progressText = document.getElementById('progressText');
+
+      const resultSection = document.getElementById('page-result');
+      const backToIntro = document.getElementById('backToIntro');
+      const newTest = document.getElementById('newTest');
+      const printBtn = document.getElementById('printBtn');
+
+      const darkToggle = document.getElementById('darkToggle');
+      const clubThumbs = [null, document.getElementById('clubThumb1'), document.getElementById('clubThumb2'), document.getElementById('clubThumb3'), document.getElementById('clubThumb4')];
+
+      // state
+      let studentInfo = null;
+      let questionsPerPage = 5;
+      let totalPages = 1;
+      let currentPageIndex = 0;
+      let currentQuestions = [];
+
+      // image previews
+      logoArea.addEventListener('click', ()=> logoInput.click());
+      logoInput.addEventListener('change', e=>{
+        const f = e.target.files[0]; if(!f) return;
+        const url = URL.createObjectURL(f);
+        logoArea.innerHTML = ''; const img = document.createElement('img'); img.src = url; img.alt='Logo'; logoArea.appendChild(img);
+      });
+      startImageBox.addEventListener('click', ()=> startImageInput.click());
+      startImageInput.addEventListener('change', e=>{
+        const f = e.target.files[0]; if(!f) return;
+        const url = URL.createObjectURL(f);
+        startImageBox.innerHTML = ''; const img = document.createElement('img'); img.src = url; img.alt='Start'; startImageBox.appendChild(img);
+      });
+      for(let i=1;i<=4;i++){
+        const btn = document.querySelector('[data-club="'+i+'"]');
+        btn.addEventListener('click', ()=> clubFileInputs[i].click());
+        clubFileInputs[i].addEventListener('change', e=>{
+          const f = e.target.files[0]; if(!f) return;
+          const url = URL.createObjectURL(f); clubThumbs[i].innerHTML=''; const img = document.createElement('img'); img.src=url; img.alt='CLB'+i; clubThumbs[i].appendChild(img);
+        });
+      }
+
+      previewBtn.addEventListener('click', ()=> document.querySelector('.club-grid').scrollIntoView({behavior:'smooth'}));
+      goToClubs.addEventListener('click', ()=> showPage('intro')); // kept for nav
+
+      // theme
+      function applyTheme(isDark){
+        document.documentElement.classList.toggle('dark', !!isDark);
+        localStorage.setItem('mbti_dark', !!isDark ? '1':'0');
+      }
+      applyTheme(localStorage.getItem('mbti_dark') === '1');
+      darkToggle.addEventListener('click', ()=> applyTheme(!document.documentElement.classList.contains('dark')));
+
+      // student modal control (required)
+      function openStudentModal(){
+        if(studentInfo){
+          studentNameInput.value = studentInfo.name||'';
+          studentIdInput.value = studentInfo.id||'';
+          studentClassInput.value = studentInfo.className||'';
+          studentHobbyInput.value = studentInfo.hobby||'';
+        } else { studentNameInput.value=''; studentIdInput.value=''; studentClassInput.value=''; studentHobbyInput.value=''; }
+        studentModal.style.display = 'flex';
+        studentModal.setAttribute('aria-hidden','false');
+        studentNameInput.focus();
+      }
+      function closeStudentModal(){ studentModal.style.display = 'none'; studentModal.setAttribute('aria-hidden','true'); }
+
+      modalCancel.addEventListener('click', ()=> { closeStudentModal(); });
+
+      modalSave.addEventListener('click', ()=>{
+        // require at least name and id
+        const name = studentNameInput.value.trim();
+        const id = studentIdInput.value.trim();
+        if(!name || !id){
+          alert('Vui lòng nhập ít nhất Tên và Mã sinh viên để tiếp tục.');
+          return;
+        }
+        studentInfo = {
+          name,
+          id,
+          className: studentClassInput.value.trim(),
+          hobby: studentHobbyInput.value.trim()
+        };
+        closeStudentModal();
+        startQuiz();
+      });
+
+      // start requires student info modal
+      btnStart.addEventListener('click', ()=> openStudentModal());
+
+      // quiz build
+      function startQuiz(){
+        const diff = document.querySelector('input[name="difficulty"]:checked')?.value || 'basic';
+        currentQuestions = questions20.slice();
+        if(diff === 'advanced') currentQuestions = shuffleArray(currentQuestions);
+        quizPagesContainer.innerHTML = '';
+        const totalQ = currentQuestions.length;
+        totalPages = Math.ceil(totalQ / questionsPerPage);
+        currentPageIndex = 0;
+
+        for(let p=0;p<totalPages;p++){
+          const pageDiv = document.createElement('div');
+          pageDiv.className = 'quiz-page';
+          pageDiv.dataset.pageIndex = p;
+          const start = p * questionsPerPage;
+          const end = Math.min(start + questionsPerPage, totalQ);
+          for(let i=start;i<end;i++){
+            const idx = i+1;
+            const qObj = currentQuestions[i];
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question';
+            const pEl = document.createElement('p'); pEl.innerHTML = `<strong>${idx}. ${escapeHtml(qObj.q)}</strong>`;
+            qDiv.appendChild(pEl);
+            const answersDiv = document.createElement('div');
+            answersDiv.className = 'answers';
+            for(let k=0;k<2;k++){
+              const id = `q${idx}_opt${k}`;
+              const label = document.createElement('label');
+              label.innerHTML = `<input type="radio" name="q${idx}" value="${qObj.val[k]}" id="${id}" /> ${escapeHtml(qObj.a[k])}`;
+              const input = label.querySelector('input');
+              input.addEventListener('change', onAnswerChange);
+              answersDiv.appendChild(label);
+            }
+            qDiv.appendChild(answersDiv);
+            pageDiv.appendChild(qDiv);
+          }
+          quizPagesContainer.appendChild(pageDiv);
+        }
+
+        showPage('quiz');
+        updatePaginationUI();
+        updateProgress();
+        scrollToTop();
+      }
+
+      function updatePaginationUI(){
+        pageIndicator.textContent = `Trang ${currentPageIndex+1} / ${totalPages}`;
+        prevBtn.disabled = currentPageIndex === 0;
+        nextBtn.disabled = currentPageIndex === (totalPages-1);
+        document.querySelectorAll('.quiz-page').forEach(p=>{
+          p.classList.toggle('active', Number(p.dataset.pageIndex) === currentPageIndex);
+          p.style.display = (Number(p.dataset.pageIndex) === currentPageIndex) ? 'block' : 'none';
+        });
+      }
+
+      prevBtn.addEventListener('click', ()=> {
+        if(currentPageIndex>0) currentPageIndex--;
+        updatePaginationUI(); scrollToTop();
+      });
+      nextBtn.addEventListener('click', ()=> {
+        if(currentPageIndex < totalPages-1) currentPageIndex++;
+        updatePaginationUI(); scrollToTop();
+      });
+
+      cancelQuiz.addEventListener('click', ()=> {
+        if(confirm('Bạn có chắc muốn hủy bài kiểm tra và về Trang Giới thiệu?')) {
+          showPage('intro');
+          quizPagesContainer.innerHTML = '';
+        }
+      });
+
+      // answer change: visual + progress
+      function onAnswerChange(e){
+        const input = e.target;
+        const label = input.closest('label');
+        const parent = label.parentElement;
+        parent.querySelectorAll('label').forEach(l=> l.classList.remove('selected'));
+        label.classList.add('selected');
+        label.animate([{transform:'scale(0.98)'},{transform:'scale(1)'}], {duration:160, easing:'ease-out'});
+        updateProgress();
+      }
+
+      function updateProgress(){
+        const totalQ = currentQuestions.length || 0;
+        if(totalQ === 0){
+          progressFill.style.width = '0%';
+          progressText.textContent = `0 / 0 (0%)`;
+          return;
+        }
+        const answered = Array.from(quizForm.querySelectorAll('input[type="radio"]:checked')).length;
+        const pct = Math.round((answered / totalQ) * 100);
+        progressFill.style.width = pct + '%';
+        progressText.textContent = `${answered} / ${totalQ} (${pct}%)`;
+      }
+
+      // submit
+      submitBtn.addEventListener('click', ()=>{
+        const formData = new FormData(quizForm);
+        const totalQ = currentQuestions.length;
+        const answered = Array.from(formData.keys()).length;
+        if(answered < totalQ){
+          if(!confirm(`Bạn chưa trả lời đủ ${totalQ} câu (${answered}). Bạn có muốn nộp vẫn?`)) return;
+        }
+        const counts = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+        for(const [k,v] of formData.entries()){
+          if(counts.hasOwnProperty(v)) counts[v] += 1;
+        }
+        const ei = counts.E >= counts.I ? 'E' : 'I';
+        const sn = counts.S >= counts.N ? 'S' : 'N';
+        const tf = counts.T >= counts.F ? 'T' : 'F';
+        const jp = counts.J >= counts.P ? 'J' : 'P';
+        const type = `${ei}${sn}${tf}${jp}`;
+
+        const descriptions = {
+          'ISTJ':'Thực tế, có trách nhiệm, tổ chức',
+          'ISFJ':'Chu đáo, trung thành, quan tâm người khác',
+          'INFJ':'Tầm nhìn, sâu sắc, tận tâm',
+          'INTJ':'Chiến lược, độc lập, phân tích',
+          'ISTP':'Thực tế, linh hoạt, giải quyết vấn đề',
+          'ISFP':'Âm thầm, nghệ thuật, dễ thích nghi',
+          'INFP':'Lý tưởng, đồng cảm, sáng tạo',
+          'INTP':'Tư duy, tò mò, phân tích',
+          'ESTP':'Năng động, thực tế, thích mạo hiểm',
+          'ESFP':'Sôi nổi, sống động, thích chia sẻ',
+          'ENFP':'Sáng tạo, nhiệt tình, tư duy tương lai',
+          'ENTP':'Sáng tạo, tranh luận, đổi mới',
+          'ESTJ':'Quyết đoán, tổ chức, lãnh đạo',
+          'ESFJ':'Quan tâm, hòa đồng, hỗ trợ',
+          'ENFJ':'Khích lệ, truyền cảm hứng, xã hội',
+          'ENTJ':'Lãnh đạo, quyết đoán, chiến lược'
+        };
+        const desc = descriptions[type] || 'Mô tả tổng quát';
+
+        const studentInfoDiv = document.getElementById('studentInfo');
+        if(studentInfo && (studentInfo.name || studentInfo.id || studentInfo.className || studentInfo.hobby)){
+          let html = '<strong>Thông tin sinh viên</strong><div style="margin-top:6px;">';
+          if(studentInfo.name) html += 'Họ tên: ' + escapeHtml(studentInfo.name) + '<br>';
+          if(studentInfo.id) html += 'Mã SV: ' + escapeHtml(studentInfo.id) + '<br>';
+          if(studentInfo.className) html += 'Lớp: ' + escapeHtml(studentInfo.className) + '<br>';
+          if(studentInfo.hobby) html += 'Sở thích: ' + escapeHtml(studentInfo.hobby) + '<br>';
+          html += '</div>';
+          studentInfoDiv.innerHTML = html;
+        } else studentInfoDiv.innerHTML = '';
+
+        document.getElementById('resultSummary').innerHTML = '<strong>Kiểu của bạn: ' + type + '</strong><div style="margin-top:8px;">' + desc + '</div>';
+        document.getElementById('eiBox').textContent = 'E: ' + counts.E + ' ; I: ' + counts.I;
+        document.getElementById('snBox').textContent = 'S: ' + counts.S + ' ; N: ' + counts.N;
+        document.getElementById('tfBox').textContent = 'T: ' + counts.T + ' ; F: ' + counts.F;
+        document.getElementById('jpBox').textContent = 'J: ' + counts.J + ' ; P: ' + counts.P;
+        document.getElementById('detailDesc').innerHTML = '<strong>Chi tiết số lần chọn:</strong><br>'
+          + 'E: ' + counts.E + ' ; I: ' + counts.I + '<br>'
+          + 'S: ' + counts.S + ' ; N: ' + counts.N + '<br>'
+          + 'T: ' + counts.T + ' ; F: ' + counts.F + '<br>'
+          + 'J: ' + counts.J + ' ; P: ' + counts.P;
+
+        showPage('result');
+        scrollToTop();
+      });
+
+      backToIntro.addEventListener('click', ()=> {
+        quizPagesContainer.innerHTML = '';
+        studentInfo = null;
+        showPage('intro');
+      });
+      newTest.addEventListener('click', ()=> {
+        quizPagesContainer.innerHTML = '';
+        studentInfo = null;
+        showPage('intro');
+        scrollToTop();
+      });
+      printBtn.addEventListener('click', ()=> window.print());
+
+      // navigation
+      function showPage(name){
+        document.getElementById('page-intro').classList.remove('active');
+        document.getElementById('page-quiz').classList.remove('active');
+        document.getElementById('page-result').classList.remove('active');
+        document.getElementById('page-intro').hidden = true;
+        document.getElementById('page-quiz').hidden = true;
+        document.getElementById('page-result').hidden = true;
+
+        if(name === 'intro'){
+          document.getElementById('page-intro').classList.add('active');
+          document.getElementById('page-intro').hidden = false;
+        } else if(name === 'quiz'){
+          document.getElementById('page-quiz').classList.add('active');
+          document.getElementById('page-quiz').hidden = false;
+        } else if(name === 'result'){
+          document.getElementById('page-result').classList.add('active');
+          document.getElementById('page-result').hidden = false;
+        }
+      }
+
+      // helper utilities
+      function scrollToTop(){ window.scrollTo({top:0,behavior:'smooth'}); }
+      function escapeHtml(str){ return String(str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+      function shuffleArray(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+      // init
+      document.getElementById('page-quiz').hidden = true;
+      document.getElementById('page-result').hidden = true;
+      studentModal.style.display = 'none';
+    })();
+  </script>
+</body>
+</html>
